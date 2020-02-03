@@ -22,7 +22,7 @@ object FindFilesWithWords extends App {
   val wordsText = StdIn.readLine()
   if (wordsText.isEmpty)
     System.exit(0)
-  val words = wordsText.split(',')
+  val words = wordsText.split(',').map(_.trim)
   val pattern = ("(?i)" + words.mkString(".*?")).r
 
   println(s"""Looking for files in $folder with words: ${words.mkString(", ")}""")
