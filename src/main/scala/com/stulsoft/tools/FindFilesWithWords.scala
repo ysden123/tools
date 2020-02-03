@@ -23,6 +23,7 @@ object FindFilesWithWords extends App {
   if (wordsText.isEmpty)
     System.exit(0)
   val words = wordsText.split(',')
+  val pattern = ("(?i)" + words.mkString(".*?")).r
 
   println(s"""Looking for files in $folder with words: ${words.mkString(", ")}""")
 
@@ -31,13 +32,7 @@ object FindFilesWithWords extends App {
     var lineNumber = 0
     source.getLines().foreach(line => {
       lineNumber += 1
-      var matched = true
-      words.foreach(word => {
-        matched = matched & line.toLowerCase.contains(word.toLowerCase)
-      })
-      if (matched) {
-        println(s"File: ${file.getName}, line ($lineNumber): $line")
-      }
+      pattern findFirstIn line foreach (_ => println(s"File: ${file.getName}, line ($lineNumber): $line"))
     })
     source.close()
   })
