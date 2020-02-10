@@ -5,6 +5,7 @@
 package com.stulsoft.tools
 
 import java.io.File
+import java.time.Duration
 
 import scala.io.{Source, StdIn}
 
@@ -22,7 +23,10 @@ object FindFilesWithWords extends App {
   val wordsText = StdIn.readLine()
   if (wordsText.isEmpty)
     System.exit(0)
-  val words = wordsText.split(',')
+
+  val startTime = System.currentTimeMillis()
+
+  val words = wordsText.split(',').map(_.trim)
   val pattern = ("(?i)" + words.mkString(".*?")).r
 
   println(s"""Looking for files in $folder with words: ${words.mkString(", ")}""")
@@ -36,6 +40,8 @@ object FindFilesWithWords extends App {
     })
     source.close()
   })
+
+  println(s"Duration: ${Utils.durationToString(Duration.ofMillis(System.currentTimeMillis() - startTime))}")
 
   def buildFileList(folder: String): List[File] = {
     val dir = new File(folder)
