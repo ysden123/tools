@@ -18,6 +18,6 @@ object Utils {
     seconds -= hours * 3600
     val minutes = seconds / 60
     seconds -= minutes * 60
-    f"""${if (days > 0) days + " days " else ""}$hours%02d:$minutes%02d:$seconds%02d"""
+    f"""${if (days > 0) days.toString + " days " else ""}$hours%02d:$minutes%02d:$seconds%02d"""
   }
 }

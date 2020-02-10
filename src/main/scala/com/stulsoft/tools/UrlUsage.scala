@@ -34,7 +34,12 @@ object UrlUsage extends App {
     Usage("/admin/exportRMPConversionBing", 0),
     Usage("/admin/exportRMPConversion", 0),
 
-    Usage("/bulk", 0)
+    Usage("/bulk", 0),
+
+    Usage("/pixel", 0),
+    Usage("/admin/get_all_pixels", 0),
+    Usage("/admin/count_pixel_data", 0),
+    Usage("/admin/force_rds_sync_pixel", 0),
   )
 
   val startTime = System.currentTimeMillis()
