@@ -13,10 +13,22 @@ import scala.io.Source
  * @author Yuriy Stul
  */
 
-case class Usage(url: String, var counter: Int)
+case class IpUsage(ip: String, var counter: Int)
+
+case class Usage(url: String, var counter: Int,
+                 //                 var ipUsages: scala.collection.mutable.TreeMap[String, IpUsage] = scala.collection.mutable.TreeMap.empty) {
+                 var ipUsages: scala.collection.mutable.Map[String, IpUsage] = scala.collection.mutable.Map.empty) {
+
+  def increaseIpUsage(ip: String): Unit = {
+    ipUsages.get(ip) match {
+      case Some(ipu) => ipu.counter += 1
+      case None =>
+        ipUsages += (ip -> IpUsage(ip, 1))
+    }
+  }
+}
 
 object UrlUsage extends App {
-
   val dir = new File("c:\\work\\res1")
   val usages = Set(
     Usage("/admin/saveManualSubIdRevenue", 0),
@@ -56,8 +68,10 @@ object UrlUsage extends App {
           for (line <- source.getLines()) {
             lineCounter += 1L
             usages.foreach(usage => {
-              if (line.contains(usage.url))
+              if (line.contains(usage.url)) {
                 usage.counter = usage.counter + 1
+                usage.increaseIpUsage(extractIp(line))
+              }
             })
           }
           source.close()
@@ -67,13 +81,23 @@ object UrlUsage extends App {
   val formatter = java.text.NumberFormat.getIntegerInstance()
 
   usages.foreach(usage => {
-    val result = s"${usage.url} is used ${formatter.format(usage.counter)} times"
-    if (usage.counter > 0)
-      println(s"*** $result ***")
-    else
+    val result = s"${usage.url} is used ${formatter.format(usage.counter)} times "
+    if (usage.counter > 0) {
+      val ipUsages = usage
+        .ipUsages
+        .toSeq
+        .sortWith { case ((_, ipUsage1), (_, ipUsage2)) => ipUsage1.counter > ipUsage2.counter }
+        .map { case (_, ipUsage) => s"${ipUsage.ip} - ${formatter.format(ipUsage.counter)}" }
+        .mkString(", ")
+      println(s"*** $result. IP usage: $ipUsages ***")
+    } else
       println(s"$result")
   })
 
   println(s"Total number of log files is ${formatter.format(fileCounter)}, total number of lines is ${formatter.format(lineCounter)}")
   println(s"Duration: ${Utils.durationToString(Duration.ofMillis(System.currentTimeMillis() - startTime))}")
+
+  def extractIp(line: String): String = {
+    line.split(' ')(3).split(':')(0)
+  }
 }
